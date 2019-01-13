@@ -119,6 +119,8 @@ local function editor(aceEnabled) -- feel free to disable the shiny Ajax.org Clo
             elseif url:match(".html") then mode = mode .. 'html'
             elseif url:match(".json") then mode = mode .. 'json'
             elseif url:match(".js") then mode = mode .. 'javascript'
+            elseif url:match(".txt") then mode = mode .. 'text'
+            elseif url:match(".csv") then mode = mode .. 'text'
             else mode = mode .. 'lua'
             end
             sen = sen .. "<style type='text/css'>#editor{width: 100%; height: 80%}</style><div id='editor'></div><script src='//rawgit.com/ajaxorg/ace-builds/master/src-min-noconflict/ace.js'></script>"

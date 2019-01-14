@@ -9,6 +9,13 @@ added external editor with syntax highlighting and further improves it.
 Dirk van den Brink, Jr. added minor tweaks Jan. 2019
 --]]
 
+local function unescape(url)
+	local hex_to_char = function(x)
+		return string.char(tonumber(x, 16))
+	end
+	return url:gsub("%%(%x%x)", hex_to_char)
+end
+
 local function editor(aceEnabled) -- feel free to disable the shiny Ajax.org Cloud Editor
  local AceEnabled = aceEnabled == nil and true or aceEnabled
  srv = net.createServer(net.TCP)
@@ -25,7 +32,7 @@ local function editor(aceEnabled) -- feel free to disable the shiny Ajax.org Clo
     
     if Status == 0 then
         _, _, method, url, vars = string.find(payload, "([A-Z]+) /([^?]*)%??(.*) HTTP")
-        -- print("Method, URL, vars: ", method, url, vars)
+        print("Method, URL, vars: ", method, url, vars)
     end
     
     if method == "POST" then
@@ -152,7 +159,6 @@ local function editor(aceEnabled) -- feel free to disable the shiny Ajax.org Clo
             sen = sen .. "</pre><hr><a href=\"?edit\">[Edit File]</a> <a href=\"?run\">[Run Again]</a> <a href=\"/\">[Main Page]</a></body></html>"
             sck:send(sen)
         end)
-
         return
 
     elseif vars == "compile" then
@@ -167,12 +173,45 @@ local function editor(aceEnabled) -- feel free to disable the shiny Ajax.org Clo
     elseif vars == "restart" then
         node.restart()
         return
+		
+	elseif vars:match("exec=") then
+	    local command = unescape(string.gsub(string.gsub(vars,"exec=", ""),"%+"," "))
+		
+		function s_output(str) sen = sen .. str end
+        node.output(s_output, 0) -- re-direct output to function s_output.
+        
+        sen = sen .. "Command is: \"" .. command .. "\"<br>"
+		
+        sen = sen .. "Output of the run:<hr><pre>"
+		
+		local st, result = pcall(loadstring(command))
 
-    end
+        -- delay the output capture by 3000 milliseconds to give some time to the user routine in pcall()
+        tmr.alarm(0, 3000, tmr.ALARM_SINGLE, function() 
+            node.output(nil)
+            if result then
+                local outp = tostring(result):sub(1,1300) -- to fit in one send() packet
+                result = nil
+                sen = sen .. outp
+            end
+            sen = sen .. "</pre><hr>"
+			
+			if st then
+				sen = sen .. "Command execution OK."
+			else
+				sen = sen .. "Command execution <b>FAILED</b>."
+			end
+			
+			sen = sen .. "<br><br><a href=\"/\">[Main Page]</a></body></html>"
+            sck:send(sen)
+        end)	
+		return
+	end
 
     local message = {}
     message[#message + 1] = sen
     sen = nil
+	
     if url == "" then
         local l = file.list();
         message[#message + 1] = "<table border=1 cellpadding=3><tr><th>Name</th><th>Size</th><th>Edit</th><th>Compile</th><th>Delete</th><th>Run</th></tr>\n"
@@ -196,6 +235,7 @@ local function editor(aceEnabled) -- feel free to disable the shiny Ajax.org Clo
         message[#message + 1] = "</table>Total: "..total.." Bytes | Used: "..used.." Bytes | Remaining: "..remaining.." Bytes <br><br><a href='#' onclick='v=prompt(\"Filename\");if (v!=null) { this.href=\"/\"+v+\"?edit\"; return true;} else return false;'>[New File]</a>&nbsp;"
         remaining, used, total=nil
     	message[#message + 1] = "<a href='#' onclick='var x=new XMLHttpRequest();x.open(\"GET\",\"/?restart\");x.send();setTimeout(function(){location.href=\"/\"},5000);this.innerText=\"[Please wait...]\";return false'>[Restart]</a>"
+		message[#message + 1] = "<br><br>Direct command execution:&nbsp;<form action=\"/\"><input type=\"text\" name=\"exec\"><input type=\"submit\" value=\"Go\"></form>"
     end
     message[#message + 1] = "</body></html>"
 

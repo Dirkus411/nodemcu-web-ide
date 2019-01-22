@@ -27,18 +27,18 @@ seconds, open the IP address from the last screen of the Wi-Fi setup in your
 web browser.  From there, operation should be pretty obvious.  You can find
 all the keyboard shortcuts for the Ace code editor here:
 
-https://github.com/ajaxorg/ace/wiki/Default-Keyboard-Shortcuts
+>https://github.com/ajaxorg/ace/wiki/Default-Keyboard-Shortcuts
 
-You can also run simple one-line commands from the "Direct Command Execution" 
-text box on the main page of the IDE.  Please note that the output is limited 
-to the 3 seconds immediately after the command is run.  In some cases, this 
-might not be enough to capture the entire output of the command.  If you have 
-further output that you need to monitor, you may want to write the output to 
-a file instead of to the standard output.  (i.e., open a file and use 
-file.writeline() instead of print() for output.)  This way of executing
-commands is more like running a file than using the serial console.  For
-instance, you can't use "=node.heap()", you have to use "print(node.heap())"
-instead.
+>You can also run simple one-line commands from the "Direct Command Execution" 
+>text box on the main page of the IDE.  Please note that the output is limited 
+>to the 3 seconds immediately after the command is run.  In some cases, this 
+>might not be enough to capture the entire output of the command.  If you have 
+>further output that you need to monitor, you may want to write the output to 
+>a file instead of to the standard output.  (i.e., open a file and use 
+>file.writeline() instead of print() for output.)  This way of executing
+>commands is more like running a file than using the serial console.  For
+>instance, you can't use "=node.heap()", you have to use "print(node.heap())"
+>instead.
 
 * To run your own program on boot, leave both pins 1 and 2 either floating or 
 pulled high, and name your program "main.lua".  If this file is not present, 

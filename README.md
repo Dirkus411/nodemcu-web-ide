@@ -25,8 +25,8 @@ given on the last screen of the Wi-Fi setup.  You'll need it later.
 * To start up in the web based IDE, hold pin 2 low on boot.  After about 5-10
 seconds, open the IP address from the last screen of the Wi-Fi setup in your 
 web browser.  From there, operation should be pretty obvious.  You can find
-all the keyboard shortcuts for the Ace code editor here:
-https://github.com/ajaxorg/ace/wiki/Default-Keyboard-Shortcuts
+all the keyboard shortcuts for the Ace code editor here:  
+https://github.com/ajaxorg/ace/wiki/Default-Keyboard-Shortcuts  
 You can also run simple one-line commands from the "Direct Command Execution" 
 text box on the main page of the IDE.  Please note that the output is limited 
 to the 3 seconds immediately after the command is run.  In some cases, this 

@@ -84,12 +84,12 @@ local function editor(aceEnabled) -- feel free to disable the shiny Ajax.org Clo
                 file.write(payload)            
                 file.close() 
             else
-                sck:send("HTTP/1.1 200 OK\r\n\r\nERROR")
+                sck:send("HTTP/1.1 200 OK\r\n\r\nERROR!")
                 Status = 0
             end
 
             if DataToGet == 0 then
-                sck:send("HTTP/1.1 200 OK\r\n\r\nOK")
+                sck:send("HTTP/1.1 200 OK\r\n\r\nSaved.")
                 Status = 0
             end
         end
@@ -137,8 +137,12 @@ local function editor(aceEnabled) -- feel free to disable the shiny Ajax.org Clo
                 .. "<script>function getSource() {return document.getElementsByName('t')[0].value;};function setSource(s) {document.getElementsByName('t')[0].value = s;};</script>"
         end
         sen = sen .. "<script>function tag(c){document.getElementsByTagName('w')[0].innerHTML=c};var x=new XMLHttpRequest();x.onreadystatechange=function(){if(x.readyState==4) setSource(x.responseText);};"
-	    .. "x.open('GET',location.pathname);x.send()</script><button onclick=\"tag('Saving, wait!');x.open('POST',location.pathname);x.onreadystatechange=function(){console.log(x.readyState);"
-	    .. "if(x.readyState==4) tag(x.responseText);};x.send(new Blob([getSource()],{type:'text/plain'}));\">Save</button> <a href='?run'>[Run File]</a> <a href=\"/\">[Main Page]</a> <w></w>"
+        .. "x.open('GET',location.pathname);x.send()</script><button onclick=\"tag('Saving, wait!');x.open('POST',location.pathname);x.onreadystatechange=function(){console.log(x.readyState);"
+        .. "if(x.readyState==4) tag(x.responseText);};x.send(new Blob([getSource()],{type:'text/plain'}));\">Save</button>"
+        if url:match(".lua") then
+            sen = sen .. "&nbsp;<a href='?run'>[Run File]</a>"
+        end
+        sen = sen .. "&nbsp;<a href=\"/\">[Main Page]</a> <w></w>"
 
     elseif vars == "run" then
         sen = sen .. "Output of the run:<hr><pre>"
@@ -168,7 +172,10 @@ local function editor(aceEnabled) -- feel free to disable the shiny Ajax.org Clo
 
     elseif vars == "delete" then
         file.remove(url)
+        sen = sen .. "Deleted file \""..url.."\". <br><br><a href=\"/\">[Main Page]</a></body></html>"
         url = ""
+        sck:send(sen)
+        return
 
     elseif vars == "restart" then
         node.restart()
@@ -214,7 +221,7 @@ local function editor(aceEnabled) -- feel free to disable the shiny Ajax.org Clo
 	
     if url == "" then
         local l = file.list();
-        message[#message + 1] = "<table border=1 cellpadding=3><tr><th>Name</th><th>Size</th><th>Edit</th><th>Compile</th><th>Delete</th><th>Run</th></tr>\n"
+        message[#message + 1] = "<table border=1 cellpadding=3><tr><th>Name</th><th>Size (Bytes)</th><th>Edit</th><th>Compile</th><th>Delete</th><th>Run</th></tr>\n"
         for k,v in pairs(l) do
             local line = "<tr><td><a href='" ..k.. "'>" ..k.. "</a></td><td>" ..v.. "</td><td>"
             local editable = k:sub(-4, -1) == ".lua" or k:sub(-4, -1) == ".css" or k:sub(-5, -1) == ".html" or k:sub(-5, -1) == ".json" or k:sub(-4, -1) == ".txt" or k:sub(-4, -1) == ".csv"
@@ -225,7 +232,7 @@ local function editor(aceEnabled) -- feel free to disable the shiny Ajax.org Clo
             if k:sub(-4, -1) == ".lua" then
                 line = line .. "<a href='" ..k.. "?compile'>compile</a>"
             end
-            line = line .. "</td><td><a href='#' onclick='v=prompt(\"Type YES to confirm file deletion!\");if (v==\"YES\") { this.href=\"/"..k.."?delete\"; return true;} else return false;'>delete</a></td><td>"
+            line = line .. "</td><td><a href='#' onclick='v=prompt(\"Type YES to confirm that you wish to delete "..k.."!\");if (v==\"YES\") { this.href=\"/"..k.."?delete\"; return true;} else return false;'>delete</a></td><td>"
             if ((k:sub(-4, -1) == ".lua") or (k:sub(-3, -1) == ".lc")) then
                 line = line .. "<a href='" ..k.. "?run'>run</a></td></tr>\n"
             end
@@ -273,7 +280,7 @@ local function editor(aceEnabled) -- feel free to disable the shiny Ajax.org Clo
 end
 
 if wifi.sta.status() == wifi.STA_GOTIP then
-    print("http://"..wifi.sta.getip().."/")
+    print("NodeMCU Web IDE running at http://"..wifi.sta.getip().."/")
     editor()
 else
     print("WiFi connecting...")

@@ -27,8 +27,7 @@ seconds, open the IP address from the last screen of the Wi-Fi setup in your
 web browser.  From there, operation should be pretty obvious.  The edit, 
 compile, delete, and run links do precisely what you think they do.  
   
-You can find
-all the keyboard shortcuts for the Ace code editor here:  
+You can find all the keyboard shortcuts for the Ace code editor here:  
   
 https://github.com/ajaxorg/ace/wiki/Default-Keyboard-Shortcuts  
   

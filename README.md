@@ -16,6 +16,9 @@ compiled in at minimum:
 
 enduser_setup, file, gpio, net, node, tmr, uart, wifi
 
+Once you have a good firmware installed, you can then copy ide.lua and init.lua
+to your device using your tool of choice such as ESPlorer or LuaLoader.
+
 * To set up the Wi-Fi connection, hold pin 1 low on boot.  You can then connect 
 to the "SetupGadget_xxxxxx" network from another device, and then open 
 http://192.168.4.1 on your web browser.  The Wi-Fi setup should be pretty 
@@ -42,6 +45,9 @@ instead.
 * To run your own program on boot, leave both pins 1 and 2 either floating or 
 pulled high, and name your program "main.lua".  If this file is not present, 
 the unit will boot into the web IDE instead.  
+
+* You can change the enduser setup and IDE startup pins in the first few lines
+of init.lua if you'd like. 
 
 ### Using SD cards attached via SPI
 BONUS: If you have the spi module and FatFS support compiled into the NodeMCU

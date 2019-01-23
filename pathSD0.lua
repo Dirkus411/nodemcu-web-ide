@@ -4,9 +4,9 @@ vol=file.mount("/SD0");
 if vol then
     file.chdir('/SD0');
     print("Done!")
-    if not file.exists("pathFlash.lua") then
-        file.open("pathFlash.lua","w")
-        file.writeline("print(\"Switching to internal FLASH.\")\; file.chdir(\"/FLASH\");")
+    if not file.exists("/SD0/pathFlash.lua") then
+        file.open("/SD0/pathFlash.lua","w")
+        file.writeline("print(\"Switching to internal FLASH.\"); file.chdir(\"/FLASH\");")
         file.close()
         print("Added script for switching back to /FLASH")
     end

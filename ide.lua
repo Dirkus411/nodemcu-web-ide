@@ -115,7 +115,7 @@ local function editor(aceEnabled) -- feel free to disable the shiny Ajax.org Clo
         return
     end
 
-    sen = sen .. "<html><head><title>NodeMCU IDE</title><meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\"><meta http-equiv=\"Expires\" content=\"-1\" />"
+    sen = sen .. "<html><head><title>NodeMCU IDE - Main Page</title><meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\"><meta http-equiv=\"Expires\" content=\"-1\" />"
     sen = sen .. "<style>a:link{color:white;} a:visited{color:white;} a:hover{color:yellow;} a:active{color:green;}</style></head>"
     sen = sen .. "<body style=\"background-color:#333333;color:#dddddd\"><h1><a href='/'>NodeMCU IDE</a></h1>"
     
@@ -126,9 +126,8 @@ local function editor(aceEnabled) -- feel free to disable the shiny Ajax.org Clo
             elseif url:match(".html") then mode = mode .. 'html'
             elseif url:match(".json") then mode = mode .. 'json'
             elseif url:match(".js") then mode = mode .. 'javascript'
-			elseif url:match(".txt") then mode = mode .. 'text'
-			elseif url:match(".csv") then mode = mode .. 'text'
-            else mode = mode .. 'lua'
+			elseif url:match(".lua") then mode = mode .. 'lua'
+			else mode = mode .. 'text'
             end
             sen = sen .. "<style type='text/css'>#editor{width: 100%; height: 80%}</style><div id='editor'></div><script src='//rawgit.com/ajaxorg/ace-builds/master/src-min-noconflict/ace.js'></script>"
                 .. "<script>var e=ace.edit('editor');e.setTheme('ace/theme/monokai');e.getSession().setMode('"..mode.."');function getSource(){return e.getValue();};function setSource(s){e.setValue(s);}</script>"
@@ -136,7 +135,7 @@ local function editor(aceEnabled) -- feel free to disable the shiny Ajax.org Clo
             sen = sen .. "<textarea name=t cols=79 rows=17></textarea></br>"
                 .. "<script>function getSource() {return document.getElementsByName('t')[0].value;};function setSource(s) {document.getElementsByName('t')[0].value = s;};</script>"
         end
-        sen = sen .. "<script>function tag(c){document.getElementsByTagName('w')[0].innerHTML=c};var x=new XMLHttpRequest();x.onreadystatechange=function(){if(x.readyState==4) setSource(x.responseText);};"
+        sen = sen .. "<script>document.title=\"NodeMCU IDE - Editing "..url.."\";function tag(c){document.getElementsByTagName('w')[0].innerHTML=c};var x=new XMLHttpRequest();x.onreadystatechange=function(){if(x.readyState==4) setSource(x.responseText);};"
         .. "x.open('GET',location.pathname);x.send()</script><button onclick=\"tag('Saving, wait!');x.open('POST',location.pathname);x.onreadystatechange=function(){console.log(x.readyState);"
         .. "if(x.readyState==4) tag(x.responseText);};x.send(new Blob([getSource()],{type:'text/plain'}));\">Save</button>"
         if url:match(".lua") then
@@ -145,7 +144,7 @@ local function editor(aceEnabled) -- feel free to disable the shiny Ajax.org Clo
         sen = sen .. "&nbsp;<a href=\"/\">[Main Page]</a> <w></w>"
 
     elseif vars == "run" then
-        sen = sen .. "Output of the run:<hr><pre>"
+        sen = sen .. "<script>document.title=\"NodeMCU IDE - Running "..url.."\";</script>Output of the run:<hr><pre>"
 
         function s_output(str) sen = sen .. str end
         node.output(s_output, 0) -- re-direct output to function s_output.
@@ -172,11 +171,11 @@ local function editor(aceEnabled) -- feel free to disable the shiny Ajax.org Clo
 
     elseif vars == "delete" then
         file.remove(url)
-        sen = sen .. "Deleted file \""..url.."\". <br><br><a href=\"/\">[Main Page]</a></body></html>"
+        sen = sen .. "<script>document.title=\"NodeMCU IDE - Deleted "..url.."\";</script>Deleted file \""..url.."\". <br><br><a href=\"/\">[Main Page]</a></body></html>"
         url = ""
         sck:send(sen)
         return
-
+        
     elseif vars == "restart" then
         node.restart()
         return
@@ -187,7 +186,7 @@ local function editor(aceEnabled) -- feel free to disable the shiny Ajax.org Clo
 		function s_output(str) sen = sen .. str end
         node.output(s_output, 0) -- re-direct output to function s_output.
         
-        sen = sen .. "Command is: \"" .. command .. "\"<br>"
+        sen = sen .. "<script>document.title=\"NodeMCU IDE - Direct Execution\";</script>Command is: \"" .. command .. "\"<br>"
 		
         sen = sen .. "Output of the run:<hr><pre>"
 		
@@ -279,11 +278,13 @@ local function editor(aceEnabled) -- feel free to disable the shiny Ajax.org Clo
  end)
 end
 
+wifi.sta.sethostname("NodeMCU-IDE")
 if wifi.sta.status() == wifi.STA_GOTIP then
     print("NodeMCU Web IDE running at http://"..wifi.sta.getip().."/")
     editor()
 else
     print("WiFi connecting...")
+    wifi.sta.connect()
     wifi.eventmon.register(wifi.eventmon.STA_GOT_IP, function()
         wifi.eventmon.unregister(wifi.eventmon.STA_GOT_IP)
         print("NodeMCU Web IDE running at http://"..wifi.sta.getip().."/")

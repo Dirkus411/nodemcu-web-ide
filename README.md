@@ -67,5 +67,6 @@ not Bytes when on the SD card.  All other file sizes are expressed in Bytes.
 
 ### ToDo: Upcoming features! 
 Assuming I ever get time to do these things, I want to...
-* organize the file list alphabetically, instead of the random AF order they currently appear in.
-* Add more integrated support for SD cards, such as another file list on the main page if an SD card is present.  
+* (HIGH) Organize the file list alphabetically, instead of the random AF order they currently appear in.
+* (HIGH) Add more integrated support for SD cards, such as another file list on the main page if an SD card is present.  
+* (LOW) Fix the issue with the browser zooming WAAAAAY in on mobile devices when trying to use the editor. 
